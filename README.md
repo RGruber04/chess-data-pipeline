@@ -27,7 +27,7 @@ Every 2 minutes, a scheduled job checks if I've played a new chess game. If I ha
 ![Discord coaching output part 1](screenshots/discord-coaching-1.png)
 ![Discord coaching output part 2](screenshots/discord-coaching-2.png)
 
-The coach is intentionally blunt — it breaks down the opening, middlegame, and endgame separately, identifies the biggest mistake in each phase, and explains specifically what to do differently next time.
+The coach is intentionally blunt, it breaks down the opening, middlegame, and endgame separately, identifies the biggest mistake in each phase, and explains specifically what to do differently next time.
 
 ### How it's built
 
@@ -56,7 +56,7 @@ Beyond real-time coaching, I wanted to analyze my performance across hundreds of
 
 ### Step 1 — Ingestion (Airbyte)
 
-I built a **custom Airbyte connector** using Connector Builder that hits Chess.com's archive API and loads my game history month by month into BigQuery — one table per month.
+I built a **custom Airbyte connector** using Connector Builder that hits Chess.com's archive API and loads my game history month by month into BigQuery, one table per month.
 
 ![Airbyte connector configuration](screenshots/airbyte-connector.png)
 
@@ -70,7 +70,7 @@ The raw data landed as 5 separate monthly tables with nested JSON columns. I con
 
 - Combines all 5 months into one dataset
 - Extracts nested JSON fields (player names, ratings, accuracy scores) into clean typed columns
-- Adds player-perspective columns (`my_rating`, `my_result`, `opponent`) so every analysis is already oriented around my performance rather than an arbitrary white/black perspective
+- Adds player perspective columns (`my_rating`, `my_result`, `opponent`) so every analysis is already oriented around my performance rather than an arbitrary white/black perspective
 
 ```sql
 -- Reorienting every column around "my" perspective
@@ -83,7 +83,7 @@ CASE WHEN white_user = 'Rgruber08' THEN white_result ELSE black_result END AS my
 
 ### Step 3 — Cost Optimization (Partitioning & Clustering)
 
-The final table is **partitioned by month** on `game_date` and **clustered by `my_result`, `time_class`, and `eco`**. This means queries that filter by date range or game type only scan the relevant slice of data rather than the whole table — an important pattern for keeping BigQuery costs down at scale.
+The final table is **partitioned by month** on `game_date` and **clustered by `my_result`, `time_class`, and `eco`**. This means queries that filter by date range or game type only scan the relevant slice of data rather than the whole table which is an important pattern for keeping BigQuery costs down at scale.
 
 ![Table partitioning and clustering details](screenshots/table-details.png)
 
@@ -107,7 +107,7 @@ My rating climbed from ~490 in February to ~960 by the end of May — nearly dou
 
 ![Win rate by accuracy](screenshots/accuracy-win-rate.png)
 
-Yes — and the relationship is almost perfectly linear. At 40–50% accuracy the win rate is near 0%. At 90–100% it's 100%. This confirms that playing more accurately is the single most impactful thing I can do to win more games, which is obvious in theory but satisfying to prove in my own data.
+Yes, and the relationship is almost perfectly linear. At 40–50% accuracy the win rate is near 0%. At 90–100% it's 100%. This confirms that playing more accurately is the single most impactful thing I can do to win more games, which is obvious in theory but satisfying to prove in my own data.
 
 ---
 
@@ -130,7 +130,7 @@ I trained a logistic regression model directly in BigQuery to predict whether I'
 | Precision | 83.3% |
 | Recall | 89.7% |
 
-An ROC AUC of 0.926 is strong — 0.5 would mean the model is guessing randomly, and 1.0 would be perfect prediction. The performance is largely driven by the rating difference between me and my opponent, which is a well-established predictor in chess.
+An ROC AUC of 0.926 is strong, 0.5 would mean the model is guessing randomly, and 1.0 would be perfect prediction. The performance is largely driven by the rating difference between me and my opponent, which is a well established predictor in chess.
 
 ### Key Finding — Opponent Rating Matters More Than Mine
 
@@ -148,7 +148,7 @@ The model also identified which openings are associated with wins and losses spe
 
 ![Worst openings](screenshots/ml-worst-openings.png)
 
-Interestingly, the Italian Game (Giuoco Piano) — which I would have called my best opening — ranked 7th. The model suggests my results in it are partly explained by playing it against weaker opponents, rather than the opening itself being inherently strong for me. That said, with small sample sizes per opening variation, these rankings are directional rather than definitive.
+Interestingly, the Italian Game (Giuoco Piano), which I would have called my best opening, ranked 7th. The model suggests my results in it are partly explained by playing it against weaker opponents, rather than the opening itself being inherently strong for me. That said, with small sample sizes per opening variation, these rankings are directional rather than definitive.
 
 ---
 
