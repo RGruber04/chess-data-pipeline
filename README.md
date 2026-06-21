@@ -152,6 +152,18 @@ Interestingly, the Italian Game (Giuoco Piano), which I would have called my bes
 
 ---
 
+## Challenges
+
+**Schema drift in Airbyte** — Months 1–4 were loading only 1 record each because the declared stream schema in Connector Builder was stale and didn't match what the API was actually returning. Fixed by syncing the schema definition from the working stream (May) across all five.
+
+**Nested JSON in BigQuery** — The raw data landed with nested objects (player ratings, accuracy scores) stored as BigQuery JSON columns rather than structs, so standard dot notation didn't work. Had to use `JSON_VALUE()` to extract each field individually.
+
+**Partitioning constraints** — BigQuery doesn't allow `ORDER BY` in a partitioned `CREATE TABLE AS SELECT`, and you can't change a table's partition spec with `CREATE OR REPLACE` — you have to drop and recreate. Learned both the hard way.
+
+**Looker Studio aggregation** — Calculated fields in Looker evaluate per row rather than across groups, which caused win rate to show as 100% for every bucket. Fixed by pre-aggregating the data in a BigQuery view and connecting that directly instead.
+
+---
+
 ## Tech Stack
 
 | Tool | Purpose |
